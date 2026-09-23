@@ -17,7 +17,7 @@ USER app
 WORKDIR /opt
 
 RUN git clone https://github.com/mandovinnie/Lute-Tab.git
-COPY --chown=${UID}:${GID} ./Makefile /opt/Lute-Tab/Makefile
+ENV TABFONTS="/opt/Lute-Tab"
 WORKDIR /opt/Lute-Tab
 RUN make
 
