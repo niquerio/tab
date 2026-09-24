@@ -28,6 +28,7 @@ WORKDIR /opt
 RUN git clone https://github.com/mandovinnie/Lute-Tab.git
 WORKDIR /opt/Lute-Tab
 RUN make
+RUN cp README tab.1 && gzip tab.1
 
 ################################################################################
 # RUNTIME
@@ -35,13 +36,19 @@ RUN make
 FROM base AS runtime
 
 RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
-  ghostscript
+  ghostscript \ 
+  man \ 
+  less
 
 RUN mkdir /opt/tab_fonts && chown ${UID}:${GID} /opt/tab_fonts
 COPY --chown=${UID}:{GID} --from=build /opt/Lute-Tab/*.tfm /opt/tab_fonts
 COPY --chown=${UID}:{GID} --from=build /opt/Lute-Tab/*pk /opt/tab_fonts
 ENV TABFONTS="/opt/tab_fonts"
+RUN mkdir /opt/tab_docs && chown ${UID}:${GID} /opt/tab_docs
+COPY --chown=${UID}:{GID} --from=build /opt/Lute-Tab/README /opt/tab_docs/README
+COPY --chown=${UID}:{GID} --from=build /opt/Lute-Tab/AboutTab.txt /opt/tab_docs/AboutTab.txt
 
+COPY --from=build /opt/Lute-Tab/tab.1.gz /usr/local/man/man1/tab.1.gz
 COPY --from=build /opt/Lute-Tab/tab /usr/local/bin/tab
 
 USER app
